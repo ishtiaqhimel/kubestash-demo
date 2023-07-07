@@ -1,0 +1,21 @@
+apiVersion: core.kubestash.com/v1alpha1
+kind: RestoreSession
+metadata:
+  name: sample-restore
+  namespace: default
+spec:
+  target:
+    apiGroup: apps
+    kind: Deployment
+    name: busy-dep
+    namespace: default
+  dataSource:
+    snapshot: latest
+    repository: demo-storage-1
+    encryptionSecret:
+      name: encry-secret # some addon may not support encryption
+      namespace: default
+  addon:
+    name: workload-addon
+    tasks:
+    - name: restore-workload
