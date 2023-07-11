@@ -8,8 +8,8 @@ spec:
   resources:
     requests:
       storage: 1Gi
-  # storageClassName: linode-block-storage-retain
-  # volumeMode: Filesystem
+  storageClassName: linode-block-storage-retain
+  volumeMode: Filesystem
 
 ---
 

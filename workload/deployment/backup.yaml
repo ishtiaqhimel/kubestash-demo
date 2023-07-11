@@ -1,7 +1,7 @@
 apiVersion: core.kubestash.com/v1alpha1
 kind: BackupConfiguration
 metadata:
-  name: sample-backup
+  name: sample-backup-dep
   namespace: default
 spec:
   target:

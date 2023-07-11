@@ -26,12 +26,12 @@ spec:
         volumeMounts:
         - name: source-data
           mountPath: /source/data
-        terminationGracePeriodSeconds: 10
-        restartPolicy: Always
-        volumes:
-        - name: source-data
-          hostPath:
-            path: /test/source/data
+      terminationGracePeriodSeconds: 10
+      restartPolicy: Always
+      volumes:
+      - name: source-data
+        hostPath:
+          path: /test/source/data
   selector:
     matchLabels:
       name: test-app
