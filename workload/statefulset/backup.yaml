@@ -42,10 +42,8 @@ spec:
           - name: www
             mountPath: /usr/share/nginx/html
         params:
-          paths:
-            value: /usr/share/nginx/html
-          exclude: 
-            value: /usr/share/nginx/html/tmp1
+          paths: /usr/share/nginx/html
+          exclude: /usr/share/nginx/html/tmp1
     retryConfig:
       maxRetry: 2
       delay: 1m
