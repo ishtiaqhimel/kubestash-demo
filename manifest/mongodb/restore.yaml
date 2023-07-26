@@ -1,0 +1,23 @@
+apiVersion: core.kubestash.com/v1alpha1
+kind: RestoreSession
+metadata:
+  name: sample-restore
+  namespace: default
+spec:
+  manifestOptions:
+    restoreNamespace: demo
+    mongoDB:
+      db: true
+      dbName: new-db
+      authSecret: true
+      configSecret: false
+  dataSource:
+    snapshot: latest
+    repository: mongo-storage
+    encryptionSecret:
+      name: encry-secret # some addon may not support encryption
+      namespace: default
+  addon:
+    name: kubedb-manifest-addon
+    tasks:
+    - name: restore-manifest

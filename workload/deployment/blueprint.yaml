@@ -36,8 +36,7 @@ spec:
       tasks:
       - name: backup-workload
         params:
-          paths:
-            value: /cache
+          paths: /cache
     retryConfig:
       maxRetry: 2
       delay: 1m

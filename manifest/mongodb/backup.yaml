@@ -1,12 +1,14 @@
 apiVersion: core.kubestash.com/v1alpha1
-kind: BackupBlueprint
+kind: BackupConfiguration
 metadata:
-  name: daemon-blueprint
+  name: sample-backup
   namespace: default
 spec:
-  usagePolicy:
-    allowedNamespaces: 
-      from: All
+  target:
+    apiGroup: kubedb.com
+    kind: MongoDB
+    namespace: default
+    name: mgo-quickstart
   backends:
   - name: s3-storage
     storageRef:
@@ -18,25 +20,23 @@ spec:
       name: demo-retention
       namespace: default
   sessions:
-  - name: workload-backup
-    sessionHistoryLimit: 50
+  - name: manifest-backup
     scheduler: # CronJob specification
       schedule: "*/2 * * * *"
       jobTemplate: # Comes from batch/v1 JobTemplateSpec
         backoffLimit: 1
     repositories: # volume & volumeMount strategy.
-    - name: demo-storage-2
+    - name: mongo-storage
       backend: s3-storage
-      directory: /${namespace}/${targetName}
+      directory: /manifest/mongo-manifest
       encryptionSecret:
         name: encry-secret # some addon may not support encryption
         namespace: default
     addon:
-      name: workload-addon
+      name: kubedb-manifest-addon
       tasks:
-      - name: backup-workload
-        params:
-          paths: /source/data/tmp1,/source/data/tmp2
+      - name: backup-manifest
+    failurePolicy: Retry # Default to "Fail"
     retryConfig:
       maxRetry: 2
       delay: 1m

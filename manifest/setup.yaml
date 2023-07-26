@@ -1,0 +1,95 @@
+apiVersion: addons.kubestash.com/v1alpha1
+kind: Function
+metadata:
+  name: manifest-backup
+spec:
+  image: ishtiaq99/kubedb-manifest:update-km-version_linux_amd64
+  args:
+  - backup
+  - --scratchDir=/tmp
+  - --namespace=${namespace:=default}
+  - --backupSession=${backupSession:=}
+
+---
+
+apiVersion: addons.kubestash.com/v1alpha1
+kind: Function
+metadata:
+  name: manifest-restore
+spec:
+  image: ishtiaq99/kubedb-manifest:update-km-version_linux_amd64
+  args:
+  - restore
+  - --namespace=${namespace:=default}
+  - --restoreSession=${restoreSession:=}
+  - --snapshotName=${snapshotName:=}
+  - --restoreNamespace=${restoreNamespace:=default}
+  - --mongoYaml=${mongoYaml:=true}
+  - --mongoName=${mongoDBName:=}
+  - --pgYaml=${pgYaml:=true}
+  - --pgName=${pgName:=}
+  - --authSecretYaml=${authSecretYaml:=true}
+  - --authSecretName=${authSecretName:=}
+  - --configSecretYaml=${configSecretYaml:=true}
+  - --configSecretName=${configSecretName:=}
+  - --issuerRefName=${issuerRefName:=}
+
+---
+
+apiVersion: storage.kubestash.com/v1alpha1
+kind: BackupStorage
+metadata:
+  name: s3-storage
+  namespace: default
+spec:
+  storage:
+    provider: s3
+    s3:
+      endpoint: us-east-1.linodeobjects.com
+      bucket: kubestash
+      region: us-east-1
+      prefix: demo
+      secret: s3-secret 
+  usagePolicy:
+    allowedNamespaces:
+      from: All
+  default: true # Use this BackupStorage as the default
+  deletionPolicy: WipeOut # One of: WipeOut, Delete
+
+---
+
+apiVersion: addons.kubestash.com/v1alpha1
+kind: Addon
+metadata:
+  name: kubedb-manifest-addon
+  namespace: default
+spec:
+  backupTasks:
+  - name: backup-manifest
+    function: manifest-backup
+    driver: Restic #Restic, WalG
+    executor: Job #Job, Sidecar, EphemeralContainer, MultiLevelJob
+    singleton: true
+  restoreTasks:
+  - name: restore-manifest
+    function: manifest-restore
+    driver: Restic
+    executor: Job
+    singleton: true
+
+---
+
+apiVersion: storage.kubestash.com/v1alpha1
+kind: RetentionPolicy
+metadata:
+  name: demo-retention
+  namespace: default
+spec:
+  maxRetentionPeriod: 2mo
+  successfulSnapshots:
+    last: 5
+  failedSnapshots:
+    last: 2
+  usagePolicy:
+    allowedNamespaces:
+      from: All
