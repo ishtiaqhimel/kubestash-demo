@@ -6,15 +6,15 @@ metadata:
 spec:
   manifestOptions:
     restoreNamespace: demo2
-    mongoDB:
+    postgres:
       db: true
       dbName: new-db
       authSecret: true
-      # authSecretName: new-db-ss
+      authSecretName: new-db-ss
       configSecret: true
   dataSource:
     snapshot: latest
-    repository: mongo-storage
+    repository: pg-storage
     encryptionSecret:
       name: encry-secret # some addon may not support encryption
       namespace: demo

@@ -6,9 +6,9 @@ metadata:
 spec:
   target:
     apiGroup: kubedb.com
-    kind: MongoDB
+    kind: Postgres
     namespace: demo
-    name: sample-mongodb
+    name: sample-postgres
   backends:
   - name: s3-storage
     storageRef:
@@ -21,17 +21,15 @@ spec:
       namespace: demo
   sessions:
   - name: manifest-backup
-    sessionHistoryLimit: 3
+    sessionHistoryLimit: 50
     scheduler: # CronJob specification
       schedule: "*/2 * * * *"
-      successfulJobsHistoryLimit: 1
-      failedJobsHistoryLimit: 1
       jobTemplate: # Comes from batch/v1 JobTemplateSpec
         backoffLimit: 1
     repositories: # volume & volumeMount strategy.
-    - name: mongo-storage
+    - name: pg-storage
       backend: s3-storage
-      directory: /manifest/mongo-manifest
+      directory: /manifest/postgres-manifest
       encryptionSecret:
         name: encry-secret # some addon may not support encryption
         namespace: demo
