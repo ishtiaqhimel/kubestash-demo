@@ -1,0 +1,71 @@
+apiVersion: core.kubestash.com/v1alpha1
+kind: BackupConfiguration
+metadata:
+  name: sample-backup
+  namespace: demo
+spec:
+  target:
+    apiGroup: apps
+    kind: DaemonSet
+    name: testing
+    namespace: demo
+  backends:
+  - name: s3-storage
+    storageRef:
+      apiGroup: storage.kubestash.com
+      namespace: demo
+      kind: BackupStorage
+      name: s3-storage
+    retentionPolicy:
+      name: demo-retention
+      namespace: demo
+  sessions:
+  - name: workload-backup
+    sessionHistoryLimit: 100
+    scheduler: # CronJob specification
+      schedule: "*/2 * * * *"
+      jobTemplate: # Comes from batch/v1 JobTemplateSpec
+        backoffLimit: 1
+    hooks:
+      preBackup:
+      - name: test-hookinfo-pod
+        hookTemplate:
+          name: test-hook-pod
+          namespace: demo
+        maxRetry: 3
+        timeout: 10s
+      - name: test-hookinfo-op
+        hookTemplate:
+          name: test-hook-op
+          namespace: demo
+        maxRetry: 3
+        timeout: 10s
+      - name: test-hookinfo-fn
+        hookTemplate:
+          name: test-hook-fn
+          namespace: demo
+        maxRetry: 3
+        timeout: 15s
+      postBackup:
+      - name: test-hookinfo
+        hookTemplate:
+          name: test-hook-op
+          namespace: demo
+        maxRetry: 3
+        timeout: 10s
+    repositories: # volume & volumeMount strategy.
+    - name: demo-storage-2
+      backend: s3-storage
+      directory: /dep/daemon
+      encryptionSecret:
+        name: encry-secret # some addon may not support encryption
+        namespace: demo
+    addon:
+      name: workload-addon
+      tasks:
+      - name: backup-workload
+        params:
+          paths: /source/data
+    retryConfig:
+      maxRetry: 2
+      delay: 1m

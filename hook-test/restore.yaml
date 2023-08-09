@@ -1,0 +1,29 @@
+apiVersion: core.kubestash.com/v1alpha1
+kind: RestoreSession
+metadata:
+  name: sample-restore
+  namespace: demo
+spec:
+  target:
+    apiGroup: apps
+    kind: DaemonSet
+    name: testing
+    namespace: demo
+  dataSource:
+    repository: demo-storage-2
+    snapshot: latest
+    encryptionSecret:
+      name: encry-secret # some addon may not support encryption
+      namespace: demo
+  addon:
+    name: workload-addon
+    tasks:
+    - name: restore-workload
+  hooks:
+    postRestore:
+    - name: test-hookinfo
+      hookTemplate:
+        name: test-hook
+        namespace: demo
+      maxRetry: 3
+      timeout: 10s

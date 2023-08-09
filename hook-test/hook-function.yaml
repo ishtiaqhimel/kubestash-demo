@@ -1,0 +1,6 @@
+apiVersion: addons.kubestash.com/v1alpha1
+kind: Function
+metadata:
+  name: hook-function
+spec:
+  image: busybox

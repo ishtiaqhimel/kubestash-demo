@@ -1,0 +1,23 @@
+apiVersion: core.kubestash.com/v1alpha1
+kind: HookTemplate
+metadata:
+  name: test-hook-fn
+  namespace: demo
+spec:
+  usagePolicy:
+    allowedNamespaces:
+      from: All
+  params:
+  - name: TEST
+    usage: This is a test param
+    required: false
+  action:
+    exec:
+      command:
+      - /bin/sh
+      - -c
+      - echo data_test > /source/data/data.txt
+  executor:
+    type: Function
+    function:
+      name: hook-function
