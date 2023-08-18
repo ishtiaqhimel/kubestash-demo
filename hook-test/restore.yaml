@@ -23,7 +23,7 @@ spec:
     postRestore:
     - name: test-hookinfo
       hookTemplate:
-        name: test-hook
+        name: test-hook-op
         namespace: demo
       maxRetry: 3
       timeout: 10s

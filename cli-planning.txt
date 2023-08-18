@@ -1,0 +1,83 @@
+KubeStash CLI:
+==============
+1. Create BackupStorage:
+------------------------
+kubectl kubestash create backupstorage <name> [f]
+
+flags 
+--namespace (string)
+--default (bool)
+--deletion-policy (string)
+--usage-policy (string)
+--provider (string)
+--endpoint (string)
+--bucket (string)
+--region (string)
+--prefix (string)
+--secret (string)
+--max-connections (int64)
+
+2. Create BackupConfiguration:
+------------------------------
+kubectl kubestash create backupconfig <name> [f]
+
+flags:
+--namespace (string)
+--target-apigroup (string)
+--target-kind (string)
+--target-name (string)
+--target-namespace (string)
+???
+
+3. Create RestoreSession:
+-------------------------
+kubectl kubestash create restoresession <name> [f]
+
+flags:
+???
+
+4. Copy Secret: (Done)
+---------------
+kubectl kubestash cp secret <name> [f]
+
+flags:
+--namespace (string)
+--to-namespace (string)
+
+5. Download Snapshot:
+---------------------
+kubectl kubestash download <snapshot-name> [f]
+
+flags:
+--namespace (string)
+--components ([]string)
+--destination (string)
+
+6. Trigger an Instant Backup: (Done)
+-----------------------------
+kubectl kubestash trigger <backupConfig-name> [f]
+
+flags:
+--namespace (string)
+
+7. Unlock Repository:
+---------------------
+???
+
+8. Pause Backup: (Done)
+-----------------
+kubectl kubestash pause backup [f]
+
+flags:
+--namespace (string)
+--backupconfig (string)
+
+9. Resume Backup: (Done)
+-----------------
+kubectl kubestash resume backup [f]
+
+flags:
+--namespace (string)
+--backupconfig (string)
+
+10. Debug??

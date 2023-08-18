@@ -3,13 +3,12 @@ kind: Function
 metadata:
   name: workload-backup
 spec:
-  image: ishtiaq99/workload:default-param_linux_amd64
+  image: ishtiaq99/workload:remove-task-flag_linux_amd64
   args:
   - backup
   - --scratchDir=/tmp
   - --namespace=${namespace:=default}
   - --backupSession=${backupSession:=}
-  - --taskName=${taskName:=}
 
 ---
 
@@ -18,13 +17,12 @@ kind: Function
 metadata:
   name: workload-restore
 spec:
-  image: ishtiaq99/workload:default-param_linux_amd64
+  image: ishtiaq99/workload:remove-task-flag_linux_amd64
   args:
   - restore
   - --namespace=${namespace:=default}
   - --restoreSession=${restoreSession:=}
   - --snapshotName=${snapshotName:=}
-  - --taskName=${taskName:=}
 
 ---
 
@@ -32,7 +30,7 @@ apiVersion: storage.kubestash.com/v1alpha1
 kind: BackupStorage
 metadata:
   name: s3-storage
-  namespace: default
+  namespace: demo
 spec:
   storage:
     provider: s3
@@ -54,7 +52,7 @@ apiVersion: addons.kubestash.com/v1alpha1
 kind: Addon
 metadata:
   name: workload-addon
-  namespace: default
+  namespace: demo
 spec:
   backupTasks:
   - name: backup-workload
@@ -89,7 +87,7 @@ apiVersion: storage.kubestash.com/v1alpha1
 kind: RetentionPolicy
 metadata:
   name: demo-retention
-  namespace: default
+  namespace: demo
 spec:
   maxRetentionPeriod: 2mo
   successfulSnapshots:

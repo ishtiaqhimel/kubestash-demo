@@ -21,7 +21,6 @@ spec:
       namespace: demo
   sessions:
   - name: manifest-backup
-    sessionHistoryLimit: 50
     scheduler: # CronJob specification
       schedule: "*/2 * * * *"
       jobTemplate: # Comes from batch/v1 JobTemplateSpec

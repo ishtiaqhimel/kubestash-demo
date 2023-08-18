@@ -3,7 +3,7 @@ kind: Function
 metadata:
   name: manifest-backup
 spec:
-  image: ishtiaq99/kubedb-manifest:fix-secret-restore_linux_amd64
+  image: ishtiaq99/kubedb-manifest:refactor_linux_amd64
   args:
   - backup
   - --scratchDir=/tmp
@@ -17,22 +17,12 @@ kind: Function
 metadata:
   name: manifest-restore
 spec:
-  image: ishtiaq99/kubedb-manifest:fix-secret-restore_linux_amd64
+  image: ishtiaq99/kubedb-manifest:refactor_linux_amd64
   args:
   - restore
   - --namespace=${namespace:=default}
   - --restoreSession=${restoreSession:=}
   - --snapshotName=${snapshotName:=}
-  - --restoreNamespace=${restoreNamespace:=default}
-  - --mongoYaml=${mongoYaml:=true}
-  - --mongoName=${mongoDBName:=}
-  - --pgYaml=${pgYaml:=true}
-  - --pgName=${pgName:=}
-  - --authSecretYaml=${authSecretYaml:=true}
-  - --authSecretName=${authSecretName:=}
-  - --configSecretYaml=${configSecretYaml:=true}
-  - --configSecretName=${configSecretName:=}
-  - --issuerRefName=${issuerRefName:=}
 
 ---
 

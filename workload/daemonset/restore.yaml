@@ -2,19 +2,19 @@ apiVersion: core.kubestash.com/v1alpha1
 kind: RestoreSession
 metadata:
   name: sample-restore
-  namespace: default
+  namespace: demo
 spec:
   target:
     apiGroup: apps
     kind: DaemonSet
     name: testing
-    namespace: default
+    namespace: demo
   dataSource:
     repository: demo-storage-2
     snapshot: latest
     encryptionSecret:
       name: encry-secret # some addon may not support encryption
-      namespace: default
+      namespace: demo
   addon:
     name: workload-addon
     tasks:

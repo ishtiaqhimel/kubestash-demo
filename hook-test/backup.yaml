@@ -53,6 +53,7 @@ spec:
           namespace: demo
         maxRetry: 3
         timeout: 10s
+        executionPolicy: OnFailure
     repositories: # volume & volumeMount strategy.
     - name: demo-storage-2
       backend: s3-storage

@@ -9,6 +9,8 @@ spec:
   - --scratchDir=/tmp
   - --namespace=${namespace:=default}
   - --backupSession=${backupSession:=}
+  - --paths=${paths:=}
+  - --exclude=${exclude:=}
 
 ---
 
@@ -23,6 +25,8 @@ spec:
   - --namespace=${namespace:=default}
   - --restoreSession=${restoreSession:=}
   - --snapshotName=${snapshotName:=}
+  - --exclude=${exclude:=}
+  - --include=${include:=}
 
 ---
 

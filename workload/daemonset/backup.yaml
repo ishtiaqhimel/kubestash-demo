@@ -2,23 +2,23 @@ apiVersion: core.kubestash.com/v1alpha1
 kind: BackupConfiguration
 metadata:
   name: sample-backup
-  namespace: default
+  namespace: demo
 spec:
   target:
     apiGroup: apps
     kind: DaemonSet
     name: testing
-    namespace: default
+    namespace: demo
   backends:
   - name: s3-storage
     storageRef:
       apiGroup: storage.kubestash.com
-      namespace: default
+      namespace: demo
       kind: BackupStorage
       name: s3-storage
     retentionPolicy:
       name: demo-retention
-      namespace: default
+      namespace: demo
   sessions:
   - name: workload-backup
     sessionHistoryLimit: 100
@@ -32,7 +32,7 @@ spec:
       directory: /dep/daemon
       encryptionSecret:
         name: encry-secret # some addon may not support encryption
-        namespace: default
+        namespace: demo
     addon:
       name: workload-addon
       tasks:
