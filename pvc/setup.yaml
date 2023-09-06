@@ -1,23 +1,24 @@
 apiVersion: addons.kubestash.com/v1alpha1
 kind: Function
 metadata:
-  name: workload-backup
+  name: pvc-backup
 spec:
-  image: ishtiaq99/workload:082ef12_linux_amd64
+  image: ishtiaq99/pvc:clone-workload-volume_linux_amd64
   args:
   - backup
   - --scratchDir=/tmp
   - --namespace=${namespace:=default}
   - --backupSession=${backupSession:=}
+  - --paths=${paths:=}
 
 ---
 
 apiVersion: addons.kubestash.com/v1alpha1
 kind: Function
 metadata:
-  name: workload-restore
-spec:
-  image: ishtiaq99/workload:082ef12_linux_amd64
+  name: pvc-restore
+spec: 
+  image: ishtiaq99/pvc:clone-workload-volume_linux_amd64
   args:
   - restore
   - --namespace=${namespace:=default}
@@ -51,35 +52,37 @@ spec:
 apiVersion: addons.kubestash.com/v1alpha1
 kind: Addon
 metadata:
-  name: workload-addon
-  namespace: demo
+  name: pvc-addon
 spec:
   backupTasks:
-  - name: backup-workload
-    function: workload-backup
-    driver: Restic #Restic, WalG
-    executor: Job #Job, Sidecar, EphemeralContainer, MultiLevelJob
-    singleton: false
-    parameters:
-    - name: paths
-      usage: Specifies list of file paths to backup.
-      required: true
-    - name: exclude
-      usage: Specifies a list of patterns for the files that should be ignored during backup.
-      required: false
+    - name: pvc-backup
+      function: pvc-backup
+      singleton: true
+      driver: Restic 
+      parameters:
+      - name: paths
+        default: /stash/data #  This path will be backup
+      volumeMounts:
+      - name: stash-volume
+        mountPath: /stash/data
+      volumeTemplate:
+      - name: stash-volume
+        source:
+          persistentVolumeClaim:
+            claimName: ${PVC_NAME}
   restoreTasks:
-  - name: restore-workload
-    function: workload-restore
-    driver: Restic
-    executor: Job
-    singleton: false
-    parameters:
-    - name: exclude
-      usage: Specifies a list of patterns for the files that should be ignored during restore.
-      required: false
-    - name: include
-      usage: Specifies a list of patterns for the files that should be restored
-      required: false
+    - name: pvc-restore
+      singleton: false
+      function: pvc-restore
+      driver: Restic
+      volumeMounts:
+      - name: stash-volume
+        mountPath: /stash/data
+      volumeTemplate:
+      - name: stash-volume
+        source:
+          persistentVolumeClaim:
+            claimName: ${PVC_NAME}
 
 ---
 

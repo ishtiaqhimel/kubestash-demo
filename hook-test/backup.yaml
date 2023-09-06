@@ -34,12 +34,12 @@ spec:
           namespace: demo
         maxRetry: 3
         timeout: 10s
-      - name: test-hookinfo-op
-        hookTemplate:
-          name: test-hook-op
-          namespace: demo
-        maxRetry: 3
-        timeout: 10s
+      #- name: test-hookinfo-op
+      #  hookTemplate:
+      #    name: test-hook-op
+      #    namespace: demo
+      #  maxRetry: 3
+      #  timeout: 10s
       - name: test-hookinfo-fn
         hookTemplate:
           name: test-hook-fn
@@ -58,6 +58,12 @@ spec:
     - name: demo-storage-2
       backend: s3-storage
       directory: /dep/daemon
+      encryptionSecret:
+        name: encry-secret # some addon may not support encryption
+        namespace: demo
+    - name: demo-storage-1
+      backend: s3-storage
+      directory: /yoyo/hijbiji
       encryptionSecret:
         name: encry-secret # some addon may not support encryption
         namespace: demo

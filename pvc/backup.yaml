@@ -1,13 +1,12 @@
 apiVersion: core.kubestash.com/v1alpha1
 kind: BackupConfiguration
 metadata:
-  name: sample-backup
+  name: pvc-backup
   namespace: demo
 spec:
   target:
-    apiGroup: apps
-    kind: StatefulSet
-    name: web
+    kind: PersistentVolumeClaim
+    name: host-pvc
     namespace: demo
   backends:
   - name: gcs-storage
@@ -20,30 +19,28 @@ spec:
       name: demo-retention
       namespace: demo
   sessions:
-  - name: workload-backup
-    sessionHistoryLimit: 50
+  - name: pvc-backup
+    sessionHistoryLimit: 
     scheduler: # CronJob specification
       schedule: "*/2 * * * *"
       jobTemplate: # Comes from batch/v1 JobTemplateSpec
         backoffLimit: 1
     repositories: # volume & volumeMount strategy.
-    - name: demo-storage-0
+    - name: pvc
       backend: gcs-storage
-      directory: /dep/sts
+      directory: /pvc
       encryptionSecret:
-        name: encry-secret # some addon may not support encryption
-        namespace: demo
+       name: encry-secret # some addon may not support encryption
+       namespace: demo
+      deletionPolicy: WipeOut 
     addon:
-      name: workload-addon
+      name: pvc-addon
       tasks:
-      - name: backup-workload
-        targetVolumes:
-          volumeMounts:
-          - name: www
-            mountPath: /usr/share/nginx/html
-        params:
-          paths: /usr/share/nginx/html
-          exclude: /usr/share/nginx/html/tmp1
+      - name: pvc-backup
+      jobTemplate:
+        spec: 
+          securityContext: 
+            runAsUser: 0
     retryConfig:
       maxRetry: 2
       delay: 1m

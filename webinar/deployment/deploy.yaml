@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: deploy-pvc
+  namespace: demo
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  volumeMode: Filesystem
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-deploy
+  namespace: demo
+  labels:
+    app: busy-dep-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: busy-dep-app
+  template:
+    metadata:
+      labels:
+        app: busy-dep-app
+    spec:
+      containers:
+      - image: busybox
+        args: ["echo sample_data > /cache/data/test.txt && sleep 3000"]
+        command: ["/bin/sh", "-c"]
+        imagePullPolicy: IfNotPresent
+        name: busybox
+        volumeMounts:
+        - mountPath: /cache/data
+          name: cache-volume
+      restartPolicy: Always
+      volumes:
+      - name: cache-volume
+        persistentVolumeClaim:
+          claimName: deploy-pvc

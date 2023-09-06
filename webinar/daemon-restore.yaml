@@ -1,0 +1,21 @@
+apiVersion: core.kubestash.com/v1alpha1
+kind: RestoreSession
+metadata:
+  name: sample-restore-daemon
+  namespace: demo
+spec:
+  target:
+    apiGroup: apps
+    kind: DaemonSet
+    name: sample-daemon
+    namespace: demo
+  dataSource:
+    repository: demo-storage-2
+    snapshot: latest
+    encryptionSecret:
+      name: encry-secret
+      namespace: demo
+  addon:
+    name: workload-addon
+    tasks:
+    - name: restore-workload

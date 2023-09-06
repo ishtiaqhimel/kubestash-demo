@@ -1,0 +1,21 @@
+apiVersion: core.kubestash.com/v1alpha1
+kind: RestoreSession
+metadata:
+  name: pvc-restoresession
+  namespace: demo
+spec:
+  target:
+    apiGroup:
+    kind: PersistentVolumeClaim
+    name: restore-host-pvc
+    namespace: demo
+  dataSource:
+    repository: pvc-storage
+    snapshot: latest
+    encryptionSecret:
+      name: encry-secret # some addon may not support encryption
+      namespace: demo
+  addon:
+    name: pvc-addon
+    tasks:
+    - name: pvc-restore

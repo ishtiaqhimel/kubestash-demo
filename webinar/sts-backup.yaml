@@ -1,13 +1,13 @@
 apiVersion: core.kubestash.com/v1alpha1
 kind: BackupConfiguration
 metadata:
-  name: sample-backup
+  name: sample-backup-sts
   namespace: demo
 spec:
   target:
     apiGroup: apps
     kind: StatefulSet
-    name: web
+    name: sample-sts
     namespace: demo
   backends:
   - name: gcs-storage
@@ -20,18 +20,17 @@ spec:
       name: demo-retention
       namespace: demo
   sessions:
-  - name: workload-backup
-    sessionHistoryLimit: 50
+  - name: two-minute-backup-cycle
     scheduler: # CronJob specification
       schedule: "*/2 * * * *"
-      jobTemplate: # Comes from batch/v1 JobTemplateSpec
+      jobTemplate:
         backoffLimit: 1
-    repositories: # volume & volumeMount strategy.
-    - name: demo-storage-0
+    repositories:
+    - name: demo-storage-1
       backend: gcs-storage
-      directory: /dep/sts
+      directory: /data/sample-sts
       encryptionSecret:
-        name: encry-secret # some addon may not support encryption
+        name: encry-secret
         namespace: demo
     addon:
       name: workload-addon
@@ -39,11 +38,10 @@ spec:
       - name: backup-workload
         targetVolumes:
           volumeMounts:
-          - name: www
-            mountPath: /usr/share/nginx/html
+          - name: source-data
+            mountPath: /source/data
         params:
-          paths: /usr/share/nginx/html
-          exclude: /usr/share/nginx/html/tmp1
+          paths: /source/data
     retryConfig:
       maxRetry: 2
       delay: 1m

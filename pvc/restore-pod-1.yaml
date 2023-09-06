@@ -1,0 +1,18 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: restore-pod-1
+  namespace: demo
+spec:
+  containers:
+  - name: busybox
+    image: busybox
+    command: ["/bin/sh", "-c","echo 'hijibiji.' > /sample/data/hello.txt && sleep 3000"]
+    volumeMounts:
+    - name: my-volume
+      mountPath: /sample/data
+      subPath: pod-1/data
+  volumes:
+  - name: my-volume
+    persistentVolumeClaim:
+      claimName: restore-host-pvc

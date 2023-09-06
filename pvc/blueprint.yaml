@@ -1,0 +1,42 @@
+apiVersion: core.kubestash.com/v1alpha1
+kind: BackupBlueprint
+metadata:
+  name: pvc-blueprint
+  namespace: demo
+spec:
+  usagePolicy:
+    allowedNamespaces: 
+      from: All
+  backupConfigurationTemplate:
+    deletionPolicy: OnDelete
+    backends:
+    - name: gcs-storage
+      storageRef:
+        apiGroup: storage.kubestash.com
+        namespace: demo
+        kind: BackupStorage
+        name: gcs-storage
+      retentionPolicy:
+        name: demo-retention
+        namespace: demo
+    sessions:
+    - name: pvc-backup
+      sessionHistoryLimit: 50
+      scheduler: # CronJob specification
+        schedule: "*/2 * * * *"
+        jobTemplate: # Comes from batch/v1 JobTemplateSpec
+          backoffLimit: 1
+      repositories: # volume & volumeMount strategy.
+      - name: pvc-storage
+        backend: gcs-storage
+        directory: pvc/${namespace}/${targetName}
+        encryptionSecret:
+          name: encry-secret # some addon may not support encryption
+          namespace: demo
+      addon:
+        name: pvc-addon
+        tasks:
+        - name: pvc-backup
+      retryConfig:
+        maxRetry: 2
+        delay: 1m
