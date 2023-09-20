@@ -3,12 +3,12 @@ kind: Function
 metadata:
   name: manifest-backup
 spec:
-  image: ishtiaq99/kubedb-manifest:refactor_linux_amd64
+  image: ishtiaq99/kubedb-manifest:set-snapshot-tm_linux_amd64
   args:
   - backup
-  - --scratchDir=/tmp
+  - --scratch-dir=/tmp
   - --namespace=${namespace:=default}
-  - --backupSession=${backupSession:=}
+  - --backupsession=${backupSession:=}
 
 ---
 
@@ -17,12 +17,12 @@ kind: Function
 metadata:
   name: manifest-restore
 spec:
-  image: ishtiaq99/kubedb-manifest:refactor_linux_amd64
+  image: ishtiaq99/kubedb-manifest:set-snapshot-tm_linux_amd64
   args:
   - restore
   - --namespace=${namespace:=default}
-  - --restoreSession=${restoreSession:=}
-  - --snapshotName=${snapshotName:=}
+  - --restoresession=${restoreSession:=}
+  - --snapshot=${snapshot:=}
 
 ---
 

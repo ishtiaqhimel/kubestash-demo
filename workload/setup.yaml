@@ -3,12 +3,14 @@ kind: Function
 metadata:
   name: workload-backup
 spec:
-  image: ishtiaq99/workload:082ef12_linux_amd64
+  image: ishtiaq99/workload:set-snapshot-tm_linux_amd64
   args:
   - backup
-  - --scratchDir=/tmp
+  - --scratch-dir=/tmp
   - --namespace=${namespace:=default}
-  - --backupSession=${backupSession:=}
+  - --backupsession=${backupSession:=}
+  - --paths=${paths:=}
+  - --exclude=${exclude:=}
 
 ---
 
@@ -17,29 +19,31 @@ kind: Function
 metadata:
   name: workload-restore
 spec:
-  image: ishtiaq99/workload:082ef12_linux_amd64
+  image: ishtiaq99/workload:set-snapshot-tm_linux_amd64
   args:
   - restore
   - --namespace=${namespace:=default}
-  - --restoreSession=${restoreSession:=}
-  - --snapshotName=${snapshotName:=}
+  - --restoresession=${restoreSession:=}
+  - --snapshot=${snapshot:=}
+  - --exclude=${exclude:=}
+  - --include=${include:=}
 
 ---
 
 apiVersion: storage.kubestash.com/v1alpha1
 kind: BackupStorage
 metadata:
-  name: gcs-storage
+  name: s3-storage
   namespace: demo
 spec:
   storage:
-    provider: gcs
-    gcs:
-      #endpoint: us-east-1.linodeobjects.com
+    provider: s3
+    s3:
+      endpoint: us-east-1.linodeobjects.com
       bucket: kubestash
-      #region: us-east-1
+      region: us-east-1
       prefix: demo
-      #secret: s3-secret 
+      secret: s3-secret 
   usagePolicy:
     allowedNamespaces:
       from: All

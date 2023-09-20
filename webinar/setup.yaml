@@ -3,12 +3,12 @@ kind: Function
 metadata:
   name: workload-backup
 spec:
-  image: ishtiaq99/workload:082ef12_linux_amd64
+  image: ishtiaq99/workload:0c1dc11_linux_amd64
   args:
   - backup
-  - --scratchDir=/tmp
+  - --scratch-dir=/tmp
   - --namespace=${namespace:=default}
-  - --backupSession=${backupSession:=}
+  - --backupsession=${backupsession:=}
   - --paths=${paths:=}
   - --exclude=${exclude:=}
 
@@ -19,12 +19,12 @@ kind: Function
 metadata:
   name: workload-restore
 spec:
-  image: ishtiaq99/workload:082ef12_linux_amd64
+  image: ishtiaq99/workload:0c1dc11_linux_amd64
   args:
   - restore
   - --namespace=${namespace:=default}
-  - --restoreSession=${restoreSession:=}
-  - --snapshotName=${snapshotName:=}
+  - --restoresession=${restoresession:=}
+  - --snapshot=${snapshot:=}
   - --exclude=${exclude:=}
   - --include=${include:=}
 

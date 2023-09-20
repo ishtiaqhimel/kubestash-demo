@@ -6,9 +6,9 @@ spec:
   image: ishtiaq99/pvc:clone-workload-volume_linux_amd64
   args:
   - backup
-  - --scratchDir=/tmp
+  - --scratch-dir=/tmp
   - --namespace=${namespace:=default}
-  - --backupSession=${backupSession:=}
+  - --backupsession=${backupSession:=}
   - --paths=${paths:=}
 
 ---
@@ -22,8 +22,8 @@ spec:
   args:
   - restore
   - --namespace=${namespace:=default}
-  - --restoreSession=${restoreSession:=}
-  - --snapshotName=${snapshotName:=}
+  - --restoresession=${restoreSession:=}
+  - --snapshot=${snapshot:=}
 
 ---
 

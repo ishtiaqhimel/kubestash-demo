@@ -3,7 +3,7 @@ kind: Function
 metadata:
   name: workload-backup
 spec:
-  image: ishtiaq99/workload:remove-task-flag_linux_amd64
+  image: ishtiaq99/workload:fix-s3-irsa_linux_amd64
   args:
   - backup
   - --scratch-dir=/tmp
@@ -19,7 +19,7 @@ kind: Function
 metadata:
   name: workload-restore
 spec:
-  image: ishtiaq99/workload:remove-task-flag_linux_amd64
+  image: ishtiaq99/workload:fix-s3-irsa_linux_amd64
   args:
   - restore
   - --namespace=${namespace:=default}
@@ -39,11 +39,10 @@ spec:
   storage:
     provider: s3
     s3:
-      endpoint: us-east-1.linodeobjects.com
+      endpoint: 's3.amazonaws.com'
       bucket: kubestash
+      prefix: ishtiaq
       region: us-east-1
-      prefix: demo
-      secret: s3-secret 
   usagePolicy:
     allowedNamespaces:
       from: All

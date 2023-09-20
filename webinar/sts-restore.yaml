@@ -15,10 +15,17 @@ spec:
     encryptionSecret:
       name: encry-secret
       namespace: demo
-    components:
-    - pod-0
-    - pod-2
   addon:
     name: workload-addon
     tasks:
     - name: restore-workload
+    jobTemplate:
+      spec:
+        serviceAccountName: bucket-user
+        resources:
+          requests:
+            memory: 256Mi
+            cpu: 100m
+          limits:
+            memory: 256Mi
+            cpu: 100m

@@ -22,7 +22,7 @@ spec:
   sessions:
   - name: two-minute-backup-cycle
     scheduler: # CronJob specification
-      schedule: "*/2 * * * *"
+      schedule: "*/5 * * * *"
       jobTemplate:
         backoffLimit: 1
     repositories:
@@ -42,6 +42,17 @@ spec:
             mountPath: /source/data
         params:
           paths: /source/data
+          exclude: /source/data/lost+found
+      jobTemplate:
+        spec:
+          serviceAccountName: bucket-user
+          resources:
+            requests:
+              memory: 256Mi
+              cpu: 100m
+            limits:
+              memory: 256Mi
+              cpu: 100m
     retryConfig:
       maxRetry: 2
       delay: 1m
