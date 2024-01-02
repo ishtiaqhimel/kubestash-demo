@@ -1,14 +1,14 @@
 apiVersion: core.kubestash.com/v1alpha1
 kind: BackupConfiguration
 metadata:
-  name: sample-backup
+  name: sample-backup-mysql
   namespace: demo
 spec:
   target:
     apiGroup: kubedb.com
-    kind: MongoDB
+    kind: MySQL
     namespace: demo
-    name: sample-mongodb
+    name: sample-mysql
   sessions:
   - name: manifest-backup
     sessionHistoryLimit: 3
@@ -19,13 +19,13 @@ spec:
       jobTemplate: # Comes from batch/v1 JobTemplateSpec
         backoffLimit: 1
     repositories: # volume & volumeMount strategy.
-    - name: mongo-storage
-      directory: /manifest/mongo-manifest
+    - name: mysql-storage
+      directory: /manifest/mysql-manifest
       encryptionSecret:
         name: encry-secret # some addon may not support encryption
         namespace: demo
     addon:
-      name: mongodb-addon
+      name: mysql-addon
       tasks:
       - name: ManifestBackup
     failurePolicy: Retry # Default to "Fail"

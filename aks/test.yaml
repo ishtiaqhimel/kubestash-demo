@@ -1,0 +1,17 @@
+apiVersion: storage.kubestash.com/v1alpha1
+kind: BackupStorage
+metadata:
+  name: test-storage
+  namespace: demo
+spec:
+  storage:
+    provider: azure
+    azure:
+      prefix: test
+      container: hello
+      storageAccount: ishtiaqnewstore
+  usagePolicy:
+    allowedNamespaces:
+      from: All
+  default: true # Use this BackupStorage as the default
+  deletionPolicy: WipeOut # One of: WipeOut, Delete

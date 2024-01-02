@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app: rs-demo
+  name: rs-demo
+  namespace: demo
+spec:
+  selector:
+    matchLabels:
+      app: rs-demo
+  template:
+    metadata:
+      labels:
+        app: rs-demo
+      name: busybox
+    spec:
+      containers:
+      - image: busybox
+        command: ["/bin/sh", "-c","echo TEST_DATA > /source/data/data.txt && sleep 3000"]
+        imagePullPolicy: IfNotPresent
+        name: busybox
+        volumeMounts:
+        - mountPath: /source/data
+          name: source-data
+      restartPolicy: Always
+      volumes:
+      - name: source-data
+        hostPath:
+          path: /stash/source/data

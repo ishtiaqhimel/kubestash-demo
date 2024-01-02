@@ -1,0 +1,22 @@
+apiVersion: stash.appscode.com/v1beta1
+kind: BackupConfiguration
+metadata:
+  name: mongo-backup
+  namespace: demo
+spec:
+  driver: Restic
+  repository:
+    name: s3-repo
+  retentionPolicy:
+    keepDaily: 10
+    keepHourly: 8
+    keepLast: 5
+    keepWeekly: 24
+    name: retention-policy-8h-10d-24w
+    prune: true
+  schedule: "*/5 * * * *" 
+  target:
+    ref:
+      apiVersion: appcatalog.appscode.com/v1alpha1
+      kind: AppBinding
+      name: mongo

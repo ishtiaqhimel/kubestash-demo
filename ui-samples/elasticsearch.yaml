@@ -1,0 +1,114 @@
+apiVersion: storage.kubestash.com/v1alpha1
+kind: BackupStorage
+metadata:
+  name: elasticsearch-storage
+  namespace: demo
+spec:
+  storage:
+    provider: gcs
+    gcs:
+      bucket: kubedb-testing
+      prefix: /elasticsearch
+      secret: elasticsearch-storage-cred 
+  deletionPolicy: Delete
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: elasticsearch-storage-cred
+  namespace: demo
+stringData:
+  password: ""
+  username: ""
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: encryption-secret
+  namespace: demo
+stringData:
+  password: ""
+  username: ""
+---
+apiVersion: core.kubestash.com/v1alpha1
+kind: BackupConfiguration
+metadata:
+  name: elasticsearch
+  namespace: demo
+spec:
+  target:
+    apiGroup: kubedb.com
+    kind: Elasticsearch
+    name: elasticsearch
+    namespace: demo
+  backends:
+  - name: elasticsearch-backend
+    storageRef:
+      name: elasticsearch-storage
+      namespace: demo
+    retentionPolicy:
+      name: elasticsearch-retention-policy
+      namespace: demo
+  sessions:
+  - name: elasticsearch-frequent-backup
+    sessionHistoryLimit: 2
+    scheduler:
+      schedule: "*/5 * * * *"
+      jobTemplate:
+        backoffLimit: 1
+    repositories:
+    - name: elasticsearch-repo
+      backend: elasticsearch-backend
+      directory: /es-repo
+      encryptionSecret:
+        name: encryption-secret
+        namespace: demo
+    addon:
+      name: elasticsearch-addon
+      tasks:
+      - name: LogicalBackup
+      jobTemplate:
+        spec:
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+---
+apiVersion: storage.kubestash.com/v1alpha1
+kind: RetentionPolicy
+metadata:
+  name: elasticsearch-retention-policy
+  namespace: demo
+spec:
+  maxRetentionPeriod: 2mo
+  successfulSnapshots:
+    last: 5
+  failedSnapshots:
+    last: 2
+---
+apiVersion: core.kubestash.com/v1alpha1
+kind: RestoreSession
+metadata:
+  name: elasticsearch
+  namespace: demo
+spec:
+  target:
+    apiGroup: kubedb.com
+    kind: Elasticsearch
+    name: elasticsearch
+    namespace: demo
+  dataSource:
+    snapshot: latest
+    repository: elasticsearch-repo
+    encryptionSecret:
+      name: encryption-secret
+      namespace: demo
+  addon:
+    name: elasticsearch-addon
+    tasks:
+    - name: LogicalBackupRestore
+    jobTemplate:
+      spec:
+        securityContext:
+          runAsUser: 0
+          runAsGroup: 0
+

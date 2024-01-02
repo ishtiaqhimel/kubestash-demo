@@ -1,13 +1,12 @@
 apiVersion: kubedb.com/v1alpha2
-kind: MongoDB
+kind: Postgres
 metadata:
-  name: sample-mongodb
+  name: sample-postgres
   namespace: demo
 spec:
-  version: "5.0.23"
-  # replicaSet:
-  #  name: "rs1"
-  # replicas: 2
+  version: "13.2"
+  # authSecret: 
+  #  name: pg-custom-auth
   storageType: Durable
   storage:
     accessModes:
@@ -16,4 +15,3 @@ spec:
       requests:
         storage: 1Gi
   terminationPolicy: Delete
-

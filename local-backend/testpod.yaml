@@ -1,0 +1,20 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: demo-pod-1
+  namespace: demo1
+spec:
+  containers:
+  - name: busybox
+    image: busybox
+    command: ["/bin/sh", "-c","echo 'hello from pod 1.' > /source/data/ttt.txt && sleep 3000"]
+    volumeMounts:
+    - name: my-volume
+      mountPath: /source/data
+  securityContext:
+    runAsUser: 0 
+    runAsGroup: 0
+  volumes:
+  - name: my-volume
+    persistentVolumeClaim:
+      claimName: source-data-sample-sts-0

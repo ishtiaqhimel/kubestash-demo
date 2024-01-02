@@ -1,0 +1,43 @@
+apiVersion: core.kubestash.com/v1alpha1
+kind: BackupConfiguration
+metadata:
+  name: sample-backup-pg
+  namespace: demo
+spec:
+  target:
+    apiGroup: kubedb.com
+    kind: Postgres
+    name: sample-postgres
+    namespace: demo
+  backends:
+  - name: local-storage
+    storageRef:
+      namespace: demo
+      name: new-storage
+    retentionPolicy:
+      name: demo-retention
+      namespace: demo
+  sessions:
+  - name: two-minute-backup-cycle
+    scheduler: # CronJob specification
+      schedule: "*/2 * * * *"
+      jobTemplate:
+        backoffLimit: 1
+    repositories:
+    - name: demo-storage-1
+      backend: local-storage
+      directory: /data/sts
+      encryptionSecret:
+        name: encry-secret
+        namespace: demo
+    addon:
+      name: kubedbmanifest-addon
+      tasks:
+      - name: LogicalBackup
+      jobTemplate:
+        spec: 
+          securityContext: 
+            runAsUser: 0
+    retryConfig:
+      maxRetry: 2
+      delay: 1m

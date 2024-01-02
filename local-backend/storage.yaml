@@ -1,0 +1,22 @@
+apiVersion: storage.kubestash.com/v1alpha1
+kind: BackupStorage
+metadata:
+  name: new-storage
+  namespace: demo
+spec:
+  storage:
+    provider: local
+    local:
+      mountPath: /nfs/data
+      nfs:
+        server: 192.168.0.106
+        path: /home/nfs/share
+  # usagePolicy:
+  #   allowedNamespaces:
+  #     from: All
+  default: true 
+  deletionPolicy: WipeOut
+  runtimeSettings:
+    pod:
+      securityContext:
+        runAsUser: 0

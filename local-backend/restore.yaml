@@ -1,0 +1,24 @@
+apiVersion: core.kubestash.com/v1alpha1
+kind: RestoreSession
+metadata:
+  name: sample-restore
+  namespace: demo
+spec:
+  manifestOptions:
+    restoreNamespace: demo2
+    postgres:
+      db: true
+      dbName: new-db
+      authSecret: true
+      authSecretName: new-db-ss
+      configSecret: true
+  dataSource:
+    snapshot: latest
+    repository: demo-storage-1
+    encryptionSecret:
+      name: encry-secret # some addon may not support encryption
+      namespace: demo
+  addon:
+    name: kubedbmanifest-addon
+    tasks:
+    - name: LogicalBackupRestore

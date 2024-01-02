@@ -1,0 +1,24 @@
+apiVersion: core.kubestash.com/v1alpha1
+kind: RestoreSession
+metadata:
+  name: sample-restore
+  namespace: demo
+spec:
+  manifestOptions:
+    restoreNamespace: demo2
+    mySQL:
+      db: true
+      dbName: new-db
+      authSecret: true
+      # authSecretName: new-db-ss
+      configSecret: true
+  dataSource:
+    snapshot: latest
+    repository: mysql-storage
+    encryptionSecret:
+      name: encry-secret # some addon may not support encryption
+      namespace: demo
+  addon:
+    name: mysql-addon
+    tasks:
+    - name: ManifestRestore

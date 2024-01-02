@@ -1,0 +1,37 @@
+apiVersion: core.kubestash.com/v1alpha1
+kind: BackupConfiguration
+metadata:
+  name: sample-backup-daemon
+  namespace: demo
+spec:
+  target:
+    apiGroup: apps
+    kind: DaemonSet
+    name: ks-demo
+    namespace: demo
+  sessions:
+  - name: two-minute-backup-cycle
+    scheduler: # CronJob specification
+      schedule: "*/2 * * * *"
+      jobTemplate:
+        backoffLimit: 1
+    repositories:
+    - name: demo-storage-2
+      # backend: local-storage
+      directory: /data/sample
+      encryptionSecret:
+        name: encry-secret
+        namespace: demo
+    addon:
+      name: workload-addon
+      tasks:
+      - name: PhysicalBackup
+        params:
+          paths: /source/data
+      jobTemplate:
+        spec: 
+          securityContext: 
+            runAsUser: 0
+    retryConfig:
+      maxRetry: 2
+      delay: 1m

@@ -1,0 +1,127 @@
+0. Export env vars:
+$ export LOCATION="eastus"
+$ export CLUSTER_NAME="ishtiaq-test"
+$ export RESOURCE_GROUP="ishtiaq"
+$ export KEYVAULT_NAME="ishtiaq-vault"
+$ export KEYVAULT_SECRET_NAME="ishtiaq-secret"
+$ export USER_ASSIGNED_IDENTITY_NAME="ishtiaq-identity"
+$ export SUBSCRIPTION_ID="1bfc9f66-316d-433e-b13d-c55589f642ca"
+$ export USER_ASSIGNED_IDENTITY_CLIENT_ID=(az identity show --name $USER_ASSIGNED_IDENTITY_NAME --resource-group $RESOURCE_GROUP --query 'clientId' -otsv)
+$ export USER_ASSIGNED_IDENTITY_OBJECT_ID=(az identity show --name $USER_ASSIGNED_IDENTITY_NAME --resource-group $RESOURCE_GROUP --query 'principalId' -otsv)
+$ export SERVICE_ACCOUNT_NAME="workload-identity-sa"
+$ export SERVICE_ACCOUNT_NAMESPACE="default"
+$ export SERVICE_ACCOUNT_ISSUER=(az aks show -n $CLUSTER_NAME -g $RESOURCE_GROUP --query "oidcIssuerProfile.issuerUrl" -otsv)
+$ export KEYVAULT_URL=(az keyvault show -g $RESOURCE_GROUP -n $KEYVAULT_NAME --query properties.vaultUri -o tsv)
+$ export AZURE_TENANT_ID=(az account show -s $SUBSCRIPTION_ID --query tenantId -otsv)
+$ export STORAGE_NAME="kubestash"
+$ export STORAGE_ID=(az storage account show --name $STORAGE_NAME --resource-group $RESOURCE_GROUP --query id -o tsv)
+
+## Mutating Admission Webhook
+$ helm repo add azure-workload-identity https://azure.github.io/azure-workload-identity/charts
+$ helm repo update
+$ helm install workload-identity-webhook azure-workload-identity/workload-identity-webhook \
+   --namespace azure-workload-identity-system \
+   --create-namespace \
+   --set azureTenantID=$AZURE_TENANT_ID
+or,
+$ curl -sL https://github.com/Azure/azure-workload-identity/releases/download/v1.1.0/azure-wi-webhook.yaml | envsubst | kubectl apply -f -
+
+1. Create an Azure resource group:
+$ az group create --name $RESOURCE_GROUP --location $LOCATION
+
+2. Create an AKS cluster with OIDC Issuer:
+$ az aks create -g $RESOURCE_GROUP -n $CLUSTER_NAME --node-count 1 --enable-oidc-issuer --enable-workload-identity
+
+3. Get the OIDC Issuer URL:
+$ az aks show -n $CLUSTER_NAME -g $RESOURCE_GROUP --query "oidcIssuerProfile.issuerUrl" -otsv
+
+4. Create an Azure Key Vault:
+$ az keyvault create --resource-group $RESOURCE_GROUP \
+   --location $LOCATION \
+   --name $KEYVAULT_NAME
+   
+5. Create a secret:
+$ az keyvault secret set --vault-name $KEYVAULT_NAME \
+   --name $KEYVAULT_SECRET_NAME \
+   --value "Hello\!"
+   
+6. Create Managed Identity:
+$ az identity create --name $USER_ASSIGNED_IDENTITY_NAME --resource-group $RESOURCE_GROUP
+
+7. Set Access Policy against Keyvault, allowing the identity to get secrets:
+$ az keyvault set-policy --name $KEYVAULT_NAME \
+  --secret-permissions get \
+  --object-id $USER_ASSIGNED_IDENTITY_OBJECT_ID
+or,
+$ az keyvault set-policy --name $KEYVAULT_NAME \
+ --secret-permissions get \
+ --spn $USER_ASSIGNED_IDENTITY_CLIENT_ID 
+ 
+8. Create a SA (cmd in bash):
+$ cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    azure.workload.identity/client-id: "${USER_ASSIGNED_CLIENT_ID}"
+  labels:
+    azure.workload.identity/use: "true"
+  name: "${SERVICE_ACCOUNT_NAME}"
+  namespace: "${SERVICE_ACCOUNT_NAMESPACE}"
+EOF
+
+9. Establish Federated Identity:
+$ az identity federated-credential create \
+ --name "k8s-fed-cred" \
+ --identity-name $USER_ASSIGNED_IDENTITY_NAME \
+ --resource-group $RESOURCE_GROUP \
+ --issuer $SERVICE_ACCOUNT_ISSUER \
+ --subject system:serviceaccount:$SERVICE_ACCOUNT_NAMESPACE:$SERVICE_ACCOUNT_NAME
+￼
+10. Deploy Sample Workload and Test (cmd in bash):
+$ cat <<EOF | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: quick-start
+  namespace: "${SERVICE_ACCOUNT_NAMESPACE}"
+  labels:
+    azure.workload.identity/use: "true"
+spec:
+  serviceAccountName: "${SERVICE_ACCOUNT_NAME}"
+  containers:
+    - image: ghcr.io/azure/azure-workload-identity/msal-go
+      name: oidc
+      env:
+      - name: KEYVAULT_URL
+        value: "${KEYVAULT_URL}"
+      - name: SECRET_NAME
+        value: "${KEYVAULT_SECRET_NAME}"
+      - name: AZURE_CLIENT_ID
+        value: "${USER_ASSIGNED_IDENTITY_CLIENT_ID}"
+EOF
+
+
+[Note: if we config mutation webhook then client id need not to set]
+
+
+
+
+## Create Storage Account:
+$ az storage account create --name $STORAGE_NAME \
+  --resource-group $RESOURCE_GROUP \
+  --allow-blob-public-access false \
+  --public-network-access "Enabled" \
+  --sku "Standard_LRS" \
+  --encryption-services blob
+  
+## Create Storage Container:
+$ az storage container create \
+  --account-name  $STORAGE_NAME \
+  --name "ishtiaq"
+  
+## Grant permission to access storage account:
+$ az role assignment create \
+--assignee $USER_ASSIGNED_IDENTITY_CLIENT_ID \
+--role 'Storage Blob Data Contributor' \
+--scope $STORAGE_ID

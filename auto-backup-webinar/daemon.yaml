@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: testing
+  namespace: demo
+  labels:
+    app: test-app
+  annotations:
+    blueprint.kubestash.com/name: sample-blueprint
+    blueprint.kubestash.com/namespace: demo
+    variables.kubestash.com/targetName: testing
+    variables.kubestash.com/namespace: demo
+    variables.kubestash.com/repoName: demo-storage-1
+    variables.kubestash.com/paths: /source/data
+spec:
+  template:
+    metadata:
+      labels:
+        name: test-app
+    spec:
+      containers:
+      - name: busybox
+        image: busybox
+        command: ["/bin/sh", "-c","echo TEST_DATA > /source/data/data.txt && sleep 3000"]
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: source-data
+          mountPath: /source/data
+      terminationGracePeriodSeconds: 10
+      restartPolicy: Always
+      volumes:
+      - name: source-data
+        hostPath:
+          path: /test/source/data
+  selector:
+    matchLabels:
+      name: test-app

@@ -1,0 +1,49 @@
+apiVersion: core.kubestash.com/v1alpha1
+kind: BackupConfiguration
+metadata:
+  name: sample-backup-daemon
+  namespace: demo
+spec:
+  target:
+    apiGroup: apps
+    kind: DaemonSet
+    name: ks-demo
+    namespace: demo
+  backends:
+  - name: azure-storage
+    storageRef:
+      apiGroup: storage.kubestash.com
+      namespace: demo
+      kind: BackupStorage
+      name: azure-storage
+    retentionPolicy:
+      name: demo-retention
+      namespace: demo
+  sessions:
+  - name: two-minute-backup-cycle
+    scheduler: # CronJob specification
+      schedule: "*/2 * * * *"
+      jobTemplate:
+        backoffLimit: 1
+    repositories:
+    - name: demo-storage-2
+      backend: azure-storage
+      directory: /data/sample-daemon
+      encryptionSecret:
+        name: encry-secret
+        namespace: demo
+    addon:
+      name: workload-addon
+      tasks:
+      - name: backup-workload
+        params:
+          paths: /source/data
+      jobTemplate:
+        metadata:
+          labels:
+            azure.workload.identity/use: "true"
+        spec:
+          serviceAccountName: bucket-user
+    retryConfig:
+      maxRetry: 2
+      delay: 1m

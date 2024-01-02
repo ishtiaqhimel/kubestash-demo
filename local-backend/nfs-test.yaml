@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pd
+spec:
+  containers:
+  - image: busybox
+    args: ["echo sample_data > /mnt/nfs/data.txt && sleep 3000"]
+    command: ["/bin/sh", "-c"]
+    name: test-container
+    volumeMounts:
+    - mountPath: /mnt/nfs
+      name: test-volume
+  volumes:
+  - name: test-volume
+    nfs:
+      server: 192.168.0.68
+      path: /home/nfs/share
+      #readOnly: true
