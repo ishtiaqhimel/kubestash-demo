@@ -1,0 +1,42 @@
+apiVersion: core.kubestash.com/v1alpha1
+kind: BackupBlueprint
+metadata:
+  name: workload-backup-blueprint
+  namespace: demo
+spec:
+  usagePolicy:
+    allowedNamespaces: 
+      from: All
+  backupConfigurationTemplate:
+    deletionPolicy: OnDelete
+    backends:
+    - name: gcs-backend
+      storageRef:
+        name: gcs-storage
+        namespace: demo
+      retentionPolicy:
+        name: demo-retention
+        namespace: demo
+    sessions:
+    - name: frequent-backup
+      sessionHistoryLimit: 3
+      scheduler:
+        schedule: "*/2 * * * *"
+        jobTemplate:
+          backoffLimit: 1
+      repositories:
+      - name: ${repoName}
+        backend: gcs-backend
+        directory: ${namespace}/${targetName}
+        encryptionSecret:
+          name: encry-secret
+          namespace: demo
+      addon:
+        name: workload-addon
+        tasks:
+        - name: LogicalBackup
+          params:
+            paths: ${paths}
+      retryConfig:
+        maxRetry: 2
+        delay: 1m

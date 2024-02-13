@@ -1,0 +1,28 @@
+apiVersion: addons.kubestash.com/v1alpha1
+kind: Function
+metadata:
+  annotations:
+    meta.helm.sh/release-name: kubedb-kubestash
+    meta.helm.sh/release-namespace: default
+  creationTimestamp: "2024-02-09T06:36:17Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/instance: kubedb-kubestash
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/name: kubedb-kubestash-catalog
+    app.kubernetes.io/version: v2024.1.31
+    helm.sh/chart: kubedb-kubestash-catalog-v2024.1.31
+  name: elasticsearch-backup
+  resourceVersion: "212572"
+  uid: a6910990-4d1e-4f42-9222-6a2971539732
+spec:
+  args:
+  - backup
+  - --namespace=${namespace:=default}
+  - --backupsession=${backupSession:=}
+  - --enable-cache=${enableCache:=}
+  - --scratch-dir=${scratchDir:=}
+  - --wait-timeout=${waitTimeout:=300}
+  - --es-args=${args:=}
+  - --interim-data-dir=${interimDataDir:=}
+  image: ghcr.io/kubedb/elasticsearch-restic-plugin:v0.4.0

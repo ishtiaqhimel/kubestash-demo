@@ -1,0 +1,23 @@
+apiVersion: core.kubestash.com/v1alpha1
+kind: RestoreSession
+metadata:
+  name: sample-restore
+  namespace: demo
+spec:
+  target:
+    apiGroup: apps
+    kind: StatefulSet
+    name: sample-sts
+    namespace: demo
+  dataSource:
+    repository: gcs-demo-repo
+    snapshot: latest
+    encryptionSecret:
+      name: encry-secret
+      namespace: demo
+    components:
+    - dump-pod-0
+  addon:
+    name: workload-addon
+    tasks:
+    - name: logical-backup-restore
