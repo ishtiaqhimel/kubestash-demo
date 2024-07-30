@@ -1,0 +1,37 @@
+apiVersion: core.kubestash.com/v1alpha1
+kind: BackupConfiguration
+metadata:
+  name: sample-backup
+  namespace: demo
+spec:
+  target:
+    apiGroup: kubedb.com
+    kind: Postgres
+    name: ha-postgres
+    namespace: demo
+  backends:
+  - name: s3-storage
+    storageRef:
+      name: s3-storage
+      namespace: demo
+    retentionPolicy:
+      name: sample-retention
+      namespace: demo
+  sessions:
+  - name: freq-backup
+    sessionHistoryLimit: 3
+    scheduler:
+      schedule: "*/5 * * * *"
+      jobTemplate:
+        backoffLimit: 0
+    repositories:
+    - name: pg-repo
+      backend: s3-storage
+      directory: /ha-postgres
+      encryptionSecret:
+        name: encry-secret
+        namespace: demo
+    addon:
+      name: postgres-addon
+      tasks:
+      - name: logical-backup

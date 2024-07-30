@@ -1,0 +1,48 @@
+## Install KubeDB (v2024.6.4):
+
+helm install kubedb oci://ghcr.io/appscode-charts/kubedb \
+        --version v2024.6.4 \
+        --namespace kubedb --create-namespace \
+        --set-file global.license=/home/appscode/backends/dbl.txt \
+        --set kubedb-kubestash-catalog.enabled=true \
+        --wait --burst-limit=10000 --debug
+
+## Install KubeStash (v2024.6.4):
+
+helm install kubestash oci://ghcr.io/appscode-charts/kubestash \
+        --version v2024.6.4 \
+        --namespace kubestash --create-namespace \
+        --set-file global.license=/home/appscode/backends/dbl.txt \
+        --wait --burst-limit=10000 --debug
+
+## Create Demo Namespace:
+
+kubectl create ns demo
+
+## Apply HA PG:
+
+kubectl apply -f pg.yaml
+
+## Create Encrypt Secret:
+
+kubectl create secret generic encry-secret --from-literal=RESTIC_PASSWORD=changeit -n demo
+
+## Create Storage Secret:
+
+kubectl create secret generic s3-secret --from-literal=AWS_ACCESS_KEY_ID=***** --from-literal=AWS_SECRET_ACCESS_KEY=****** -n demo
+
+## Create BackupStorage:
+
+kubectl apply -f storage.yaml
+
+## Create RetentionPolicy:
+
+kubectl apply -f retention.yaml
+
+## Create BackupConfiguration:
+
+kubectl apply -f backup.yaml
+
+## Create RestoreSession:
+
+kubectl apply -f restore.yaml

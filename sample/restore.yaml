@@ -1,0 +1,21 @@
+apiVersion: core.kubestash.com/v1alpha1
+kind: RestoreSession
+metadata:
+  name: sample-restore
+  namespace: demo
+spec:
+  target:
+    apiGroup: kubedb.com
+    kind: Postgres
+    name: rs-postgres
+    namespace: demo
+  dataSource:
+    snapshot: latest
+    repository: pg-repo
+    encryptionSecret:
+      name: encry-secret 
+      namespace: backup
+  addon:
+    name: postgres-addon
+    tasks:
+      - name: logical-backup-restore
